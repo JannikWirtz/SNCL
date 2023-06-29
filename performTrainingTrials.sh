@@ -17,7 +17,7 @@ do
     do
         NCL="GNCL"
         echo 'run trial: models' $base_model 'NCL' $NCL 'weight' $ncl_weight
-        'C:\ProgramData\Anaconda3\python.exe' 'SNCLtraining.py' --ncl_weight $ncl_weight --ncl_type $NCL --base_models $base_model --neptuneai $sync --trial_id $trial_id --silent True &
+        'C:\ProgramData\Anaconda3\python.exe' 'SNCLtraining.py' --ncl_weight $ncl_weight --ncl_type $NCL --base_models $base_model --neptuneai $sync --silent True &
         sleep $sleeptime
     done
     wait
@@ -25,7 +25,7 @@ do
     do
         NCL="SNCL"
         echo 'run trial: models' $base_model 'NCL' $NCL 'weight' $ncl_weight
-        'C:\ProgramData\Anaconda3\python.exe' 'SNCLtraining.py' --ncl_weight $ncl_weight --ncl_type $NCL --base_models $base_model --neptuneai $sync --trial_id $trial_id --silent True &
+        'C:\ProgramData\Anaconda3\python.exe' 'SNCLtraining.py' --ncl_weight $ncl_weight --ncl_type $NCL --base_models $base_model --neptuneai $sync --silent True &
         sleep $sleeptime
     done
     wait
