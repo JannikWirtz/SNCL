@@ -49,7 +49,9 @@ def entropy(outputs):
     
 
 def plotEntropyDensityByDataset(snclEntropies, gnclEntropies, indEntropies, label=''):
-    # plot the density curves of the entropy of the outputs of each submodel
+    """
+        method to plot the density curves of the entropy of the outputs of each submodel
+    """
     plt.figure()    
     plt.clf()
     # compute the density
@@ -82,7 +84,7 @@ def getOutputs(ensemble, dataloader, metaModel=None):
         inputs, labels = batch[0].cuda(), batch[1].cuda()
         all_labels.append(labels)
         with torch.no_grad():
-            outputs.append(torch.exp(ensemble.forward(inputs, log_softmax=True, eval=True)))
+            outputs.append(ensemble.forward(inputs, softmax=True, eval=True))
     outputs = torch.cat(outputs, dim=1)
     all_labels = torch.cat(all_labels, dim=0)
     if metaModel is None:
@@ -91,8 +93,7 @@ def getOutputs(ensemble, dataloader, metaModel=None):
     
     with torch.no_grad():
         # [models x batch x classes]
-        snclEnsembleOutput = metaModel.forward(outputs.cuda(), log_softmax=True) # [10000, 10]
-        snclEnsembleOutput = torch.exp(snclEnsembleOutput) # log-prob. -> prob.
+        snclEnsembleOutput = metaModel.forward(outputs.cuda(), softmax=True)
         return outputs, snclEnsembleOutput
 
 
@@ -201,7 +202,6 @@ def cifar_10_corrupted_test(snclEnsemble, gnclEnsemble, indEnsemble, inSampleRes
 
         plotEntropyDensityByDataset(snclEntropies, gnclEntropies, indEntropies, label='_shifted_intensity='+str(intensity))
 
-    # plot
     plotEntropyDensitiesPerModel()
 
 
@@ -227,7 +227,6 @@ def plotEntropyDensitiesPerModel():
         axes.set_xlim([start, end])
         plt.grid(True)
         plt.tight_layout()
-        # save fig
         plt.savefig('./plots/entropyDensity'+method+'.png')
         plt.savefig('./plots/entropyDensity'+method+'.svg')
 

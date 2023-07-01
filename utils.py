@@ -21,8 +21,8 @@ def load_cifar10(batchsize, shuffle=False, include_data_augmentation=False):
     trainloader = torch.utils.data.DataLoader(trainset, batchsize, shuffle=shuffle)
     testset = torchvision.datasets.CIFAR10(root='./data', train=False, transform=transform_test, download=True)
     testloader = torch.utils.data.DataLoader(testset, batchsize, shuffle=False)
-
     return trainloader, testloader
+
 
 def load_cifar100(batchsize, shuffle=False, include_data_augmentation=False):
     transform_test = transforms.Compose([
@@ -42,7 +42,6 @@ def load_cifar100(batchsize, shuffle=False, include_data_augmentation=False):
     trainloader = torch.utils.data.DataLoader(trainset, batchsize, shuffle=shuffle)
     testset = torchvision.datasets.CIFAR100(root='./data', train=False, transform=transform_test, download=True)
     testloader = torch.utils.data.DataLoader(testset, batchsize, shuffle=False)
-
     return trainloader, testloader
 
 
@@ -74,3 +73,4 @@ def load_CIFAR10_testset():
     testset = torchvision.datasets.CIFAR10(root='./data', train=False, transform=transform_test, download=True)
     testloader = torch.utils.data.DataLoader(testset, 1000, shuffle=False)
     return testloader
+

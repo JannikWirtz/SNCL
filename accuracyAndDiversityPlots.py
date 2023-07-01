@@ -2,13 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-plt.rcParams.update({'font.size': 13})
 from matplotlib.colors import TwoSlopeNorm
+plt.rcParams.update({'font.size': 13})
 PATH = 'INSERT_PATH_HERE'
 SHOW = False
 
 # REQUIRES: NEPTUNE.AI CSV EXPORT
-files = [PATH+f for f in os.listdir(PATH) if f.startswith('Thesis-Cifar')]
+files = [PATH+f for f in os.listdir(PATH) if f.startswith('PROJECT_NAME')]
 recent = max(files, key=os.path.getctime) # most recent result export
 df = pd.read_csv(recent)
 
@@ -46,7 +46,7 @@ def plotNCLComparison(ncl_types, dataset, metric='acc', basemodels=5, ncl_weight
             elif metric == 'ind-acc':
                 max_metric_avg[i].append(df_base['test/accuracy (last)'].mean())
                 max_metric_std[i].append(df_base['test/accuracy (last)'].std())
-    # plot
+
     for i, type in enumerate(ncl_types):
         l = 'SNCL (ours)' if 'stacked' in type else 'GNCL'
         plt.errorbar(ncl_weights, max_metric_avg[i], yerr=max_metric_std[i], label=l, color=colors[i], capsize=3)
@@ -112,7 +112,6 @@ def plotBasemodelComparison(ncl_types, dataset, ncl_weight, metric='acc', basemo
                 max_metric_avg[i].append(df_base['test/accuracy (last)'].mean())
                 max_metric_std[i].append(df_base['test/accuracy (last)'].std())
 
-    # plot
     for i, type in enumerate(ncl_types):
         l = 'SNCL (ours)' if 'stacked' in type else 'GNCL'
         plt.errorbar(basemodels, max_metric_avg[i], yerr=max_metric_std[i], label=l, color=colors[i], capsize=3)
@@ -127,7 +126,6 @@ def plotBasemodelComparison(ncl_types, dataset, ncl_weight, metric='acc', basemo
         plt.ylabel('Avg. pair-wise disagreement rate')
     elif metric == 'kld':
         plt.ylabel('Avg. pair-wise KL-Divergence')
-        #plt.ylim(0,max(max_metric_avg[i], key=lambda x: float(0.0) if x in [np.inf, np.nan] else x)+0.2)        
     elif metric == 'ind-acc':
         plt.ylabel('Average submodel test accuracy')
     # plt.title('Comparison of ensemble methods (λ={})'.format(ncl_weight))
@@ -154,23 +152,23 @@ for dataset in datasets:
     ncl_weight_x_base_models = []
     for metric in ['acc', 'disag', 'kld', 'ce', 'ind-acc']:
         for i, ncl_weight in enumerate([0, 0.25, 0.5, 0.75, 0.9, 1]):
-            tmp = plotBasemodelComparison(ncl_types=['gncl_ce_stacked_softmax_adam','gncl_softmax_adam'], dataset=dataset, metric=metric, ncl_weight=ncl_weight)
+            tmp = plotBasemodelComparison(ncl_types=['SNCL','GNCL'], dataset=dataset, metric=metric, ncl_weight=ncl_weight)
             
 
     for metric in ['acc', 'disag','kld', 'ce', 'ind-acc']:
         for basemodels in [3, 5, 10, 15, 20]:
-            tmp = plotNCLComparison(ncl_types=['gncl_ce_stacked_softmax_adam','gncl_softmax_adam'], dataset=dataset, metric=metric, basemodels=basemodels)
+            tmp = plotNCLComparison(ncl_types=['SNCL','GNCL'], dataset=dataset, metric=metric, basemodels=basemodels)
             if metric == 'acc':
                 ncl_weight_x_base_models.append(tmp)
 
     ncl_weight_x_base_models = np.array(ncl_weight_x_base_models)
 
-    gncl_ce_stacked_softmax_adam = ncl_weight_x_base_models[:,0]
-    gncl_softmax_adam = ncl_weight_x_base_models[:,1]
+    SNCL_results = ncl_weight_x_base_models[:,0]
+    GNCL_results = ncl_weight_x_base_models[:,1]
 
 
     # subtract and show diff
-    diff = gncl_ce_stacked_softmax_adam - gncl_softmax_adam
+    diff = SNCL_results - GNCL_results
     fig, ax = plt.subplots(figsize=(8,6))
     
     norm = TwoSlopeNorm(vmin=-0.08, vcenter=0, vmax=0.08)  # Adjust vmin, vcenter, and vmax as needed

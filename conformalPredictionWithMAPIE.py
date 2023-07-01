@@ -2,8 +2,8 @@ import os
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-from MAPIE.mapie.classification import MapieClassifier
-from MAPIE.mapie.metrics import classification_coverage_score
+from mapie.classification import MapieClassifier
+from mapie.metrics import classification_coverage_score
 from sklearn.metrics import accuracy_score
 from qualitativeAnalysesForSpecialization import extract_models
 from models import MetaLearner
@@ -47,35 +47,6 @@ class PytorchToMapie():
         self.trained_ = True
         self.classes_ = 10
 
-
-def count_null_set(y: np.ndarray) -> int:
-    count = 0
-    for pred in y[:, :]:
-        if np.sum(pred) == 0:
-            count += 1
-    return count
-   
-
-def getOutputs(ensemble, dataloader, metaModel=None):
-    outputs = []
-    all_labels = []
-    for batch in dataloader:
-        inputs, labels = batch[0].cuda(), batch[1].cuda()
-        all_labels.append(labels)
-        with torch.no_grad():
-            outputs.append(torch.exp(ensemble.forward(inputs, log_softmax=True, eval=True)))
-    outputs = torch.cat(outputs, dim=1)
-    all_labels = torch.cat(all_labels, dim=0)
-    if metaModel is None:
-        averageEnsembleOutput = outputs.mean(dim=0)
-        return outputs, averageEnsembleOutput.cpu().detach().numpy()
-    
-    with torch.no_grad():
-        # [models x batch x classes]
-        snclEnsembleOutput = metaModel.forward(outputs.cuda(), log_softmax=True) # [10000, 10]
-        snclEnsembleOutput = torch.exp(snclEnsembleOutput) # logits -> probabilities
-        return outputs, snclEnsembleOutput.cpu().detach().numpy()
-    
 
 def plot_coverages_and_widths(alpha, coverages, setSizes, labels, filename, seperate=True):
     if seperate:
@@ -135,7 +106,7 @@ def plot_coverages_per_class(alpha, coverages, labels, filename):
     plt.savefig(filename + '.png')
     plt.savefig(filename + '.svg')
     # plt.show()
-    # Per class plots for thesis
+    # Per class plots
     for classIdx in range(10):
         fig, axs = plt.subplots(1, 1, figsize=(6, 5))
         for modelIdx in range(len(coverages)):
@@ -160,10 +131,10 @@ if __name__ == '__main__':
         for M in [5, 20]:
             if M == 20:            
                 averagedINDEnsembleSubmodels, indEnsemble = extract_models(run_id='INSERT_RUN_ID_HERE')
-                if LAMBDA == 0.5: # M=20, ncl_weight=0.5
+                if LAMBDA == 0.5:
                     averagedGNCLEnsembleSubmodels, gnclEnsemble = extract_models(run_id='INSERT_RUN_ID_HERE')
                     run_id = 'INSERT_RUN_ID_HERE'
-                elif LAMBDA == 0.9: # M=20, ncl_weight=0.9
+                elif LAMBDA == 0.9:
                     averagedGNCLEnsembleSubmodels, gnclEnsemble = extract_models(run_id='INSERT_RUN_ID_HERE')
                     run_id = 'INSERT_RUN_ID_HERE'
 
@@ -187,7 +158,6 @@ if __name__ == '__main__':
             testloader = load_CIFAR10_testset()
             labels = np.array(testloader.dataset.targets)
 
-            # use the first 1000 samples out of the 10000 test samples for calibration (determining q thresholds)
             snclCoverages = [[] for _ in range(trials)] # marginal coverages
             gnclCoverages = [[] for _ in range(trials)] # marginal coverages
             indCoverages = [[] for _ in range(trials)] # marginal coverages
@@ -205,6 +175,7 @@ if __name__ == '__main__':
                     calibrationIndices = np.random.choice(len(testloader.dataset), size=calibrationSetSize, replace=False)
                     testIndices = np.array([i for i in range(len(testloader.dataset)) if i not in calibrationIndices])
 
+                    # use the first 2000 samples out of the 10000 test samples for calibration (determining q thresholds)
                     X_calib = testloader.dataset.data[calibrationIndices]
                     y_calib = labels[calibrationIndices]
                     X_test = testloader.dataset.data[testIndices]
@@ -277,7 +248,6 @@ if __name__ == '__main__':
                 indCoveragesPerClass = np.array(indCoveragesPerClass)
                 filename = './plots/CP_' + method + '_M=' + str(M) + '_lam=' + str(LAMBDA)
                 plot_coverages_and_widths(alphaRange, [snclCoverages, gnclCoverages, indCoverages], [snclAverageSetSizes, gnclAverageSetSizes, indAverageSetSizes], ['SNCL (ours)', 'GNCL', 'Indep.'], filename)
-                filename = './plots/CP_' + method + '_M=' + str(M) + '_lam=' + str(LAMBDA)
                 plot_coverages_and_widths(alphaRange, [snclCoverages, gnclCoverages, indCoverages], [snclAverageSetSizes, gnclAverageSetSizes, indAverageSetSizes], ['SNCL (ours)', 'GNCL', 'Indep.'], filename, True)
                 filename = './plots/CP_class_coverages_' + method + '_M=' + str(M) + '_lam=' + str(LAMBDA)
                 plot_coverages_per_class(alphaRange, [snclCoveragesPerClass, gnclCoveragesPerClass, indCoveragesPerClass], ['SNCL (ours)', 'GNCL', 'Indep.'], filename)

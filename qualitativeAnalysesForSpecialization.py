@@ -6,7 +6,11 @@ import matplotlib.pyplot as plt
 from models import Ensemble, Ensemble_single, MetaLearner
 from utils import load_cifar10
 
+
 def extract_models(run_id):
+    """
+        Method that extracts the individual models from a saved ensemble model
+    """
     # get list of files in model folder starting with ensemble in name
     files = os.listdir('./models/')
     files = [file for file in files if run_id in file]
@@ -40,6 +44,10 @@ def getPerClassAcc(outputs, labels):
 
 
 def getOutputs(models, dataloader, metaModel=None):
+    """
+        Method that computes the outputs and accuracy of the submodels 
+        and the ensemble model for the given dataloader.
+    """
     outputs = [[] for _ in range(len(models))]
     all_labels = []
     for batch in dataloader:
@@ -64,7 +72,11 @@ def getOutputs(models, dataloader, metaModel=None):
 
                 
 def accExclusionDeltas(subModelOutputs, all_labels, metaModel, ensPerClassAcc, replacementValue=0.1, plotName=None):
-    # determine specialisation of submodels by excluding them individually from the ensemble to determine the per class acc loss
+    """
+        Method that computes the per-class accuracy deltas for each submodel 
+        after its exclusion from the ensemble, with the goal of assessing the
+        specialization of each submodel.
+    """
     exclusionAccs = []
     for modelIdx in range(len(subModelOutputs)):
         origOutputs = torch.stack(subModelOutputs)
@@ -89,9 +101,8 @@ def accExclusionDeltas(subModelOutputs, all_labels, metaModel, ensPerClassAcc, r
     plt.clf()
     plt.figure()
     from matplotlib.colors import TwoSlopeNorm
-    m = 0.10
-    norm = TwoSlopeNorm(vmin=-m, vcenter=0, vmax=m)  # Adjust vmin, vcenter, and vmax as needed
-    #plt.imshow(specializations, cmap='RdBu_r')#, norm=norm)
+    m = 0.10 # Adjust m as needed
+    norm = TwoSlopeNorm(vmin=-m, vcenter=0, vmax=m)  
     plt.imshow(accLost, cmap='RdBu_r', norm=norm)
     plt.xlabel('Class index')
     plt.ylabel('Model index')
@@ -118,7 +129,7 @@ def visualizeWeightMatrices(metaModel):
 
     # Create a centered coolwarm colormap
     from matplotlib.colors import TwoSlopeNorm
-    norm = TwoSlopeNorm(vmin=np.min(specializations), vcenter=0, vmax=-np.min(specializations))  # Adjust vmin, vcenter, and vmax as needed
+    norm = TwoSlopeNorm(vmin=np.min(specializations), vcenter=0, vmax=-np.min(specializations))
 
     weight_matrix = metaModel.layers[0].weight.cpu().detach().numpy()
 
@@ -137,7 +148,7 @@ def visualizeWeightMatrices(metaModel):
 
         # Create a centered coolwarm colormap
         from matplotlib.colors import TwoSlopeNorm
-        norm = TwoSlopeNorm(vmin=np.min(weight_matrix), vcenter=0, vmax=-np.min(weight_matrix))  # Adjust vmin, vcenter, and vmax as needed
+        norm = TwoSlopeNorm(vmin=np.min(weight_matrix), vcenter=0, vmax=-np.min(weight_matrix))
 
         plt.imshow(tmp, cmap='RdBu_r', interpolation='none', norm=norm)#, norm=norm)
         plt.xticks(np.arange(0,10),[i for i in np.arange(1,11)])

@@ -4,6 +4,7 @@ from sklearn.metrics import roc_auc_score, roc_curve
 import pandas as pd
 plt.rcParams.update({'font.size': 13})
 
+
 def calculateAUROC(id, ood, entropies, M, LAMBDA, results):
     # calculate AU-ROC for each method; semantic OOD
     print(id + ' vs.' + ood + ' M='+str(M) + ' lam=' + str(LAMBDA))
@@ -28,6 +29,7 @@ def calculateAUROC(id, ood, entropies, M, LAMBDA, results):
     plt.tight_layout()
     plt.savefig('./plots/OODD_' + id + '_vs_' + ood + '_M='+str(M) + '_lam=' + str(LAMBDA) + '.png')
     plt.savefig('./plots/OODD_' + id + '_vs_' + ood + '_M='+str(M) + '_lam=' + str(LAMBDA) + '.svg')
+
 
 def entropyDensitiesPerModel(entropies, M, LAMBDA):
     plt.rcParams.update({'font.size': 15})
@@ -64,7 +66,7 @@ def plotROCExample():
     plt.clf()
     plt.plot([0, 1], [0, 1], 'k--', label='random classifier (AUROC=50%)')
     plt.plot([0, 1], [1, 1], 'b', label='perfect classifier (AUROC=100%)')
-    plt.plot([0, 0], [0, 1], 'b')#, label='perfect classifier (AUROC=100%)')
+    plt.plot([0, 0], [0, 1], 'b')
     plt.xlabel('FPR')
     plt.ylabel('TPR')
     plt.legend(loc='lower right')
@@ -90,7 +92,7 @@ if __name__ == '__main__':
 
     for LAMBDA in [0.5, 0.9]:
         for M in [5,20]:
-            # load entropies from npz file generated with cifar10_corrupted_temperature_scaling.py
+            # load entropies from npz file generated with generateAndPlotEntropies.py
             entropies = {}
             methods = ['SNCL_', 'GNCL_', 'Indep_']
             for method in methods[::-1]:

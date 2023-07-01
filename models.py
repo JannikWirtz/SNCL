@@ -30,14 +30,16 @@ class MetaLearner(nn.Module): # stacking
         self.layers = nn.ModuleList(layers)
 
 
-    def forward(self, x):
+    def forward(self, x, softmax=True):
         x = x.permute(1, 0, 2)
         x = x.reshape((-1, self.num_modules * self.num_classes))
         for i in range(len(self.layers)):
             x = self.layers[i](x)
             if i < len(self.layers) - 1:
                 x = self.activation(x)
-        x = F.softmax(x, dim=1) 
+                
+        if softmax:
+            x = F.softmax(x, dim=1) 
         return x
 
 
@@ -71,7 +73,7 @@ class Ensemble(nn.Module):
         return self.layers, self.fc1, self.fc2
 
 
-    def forward(self, x, eval=False):
+    def forward(self, x, eval=False, softmax=True):
         x = x.repeat(1, self.num_modules, 1, 1) # duplicate input for each module
         n_examples = x.shape[0]
         
@@ -87,7 +89,8 @@ class Ensemble(nn.Module):
         conv2_3D = x.view(n_examples, self.num_modules, -1).permute(1, 0, 2)
         x = self.fc1(conv2_3D)
         x = self.fc2(x)
-        x = F.softmax(x, dim=2)
+        if softmax:
+            x = F.softmax(x, dim=2)
         return x
 
     def reset_parameters(self):
@@ -171,7 +174,7 @@ class Ensemble_single(nn.Module):
         self.fc2.weight.data = weight_dict['fc2.weight'][idx]
         self.fc2.bias.data = weight_dict['fc2.bias'][idx]
 
-    def forward(self, x, eval=False):
+    def forward(self, x, eval=False, softmax=True):
         n_examples = x.shape[0]
         
         for i, layer in enumerate(self.layers):
@@ -186,7 +189,8 @@ class Ensemble_single(nn.Module):
         conv2_3D = x.view(n_examples, self.num_modules, -1).permute(1, 0, 2)
         x = self.fc1(conv2_3D)
         x = self.fc2(x)
-        x = F.softmax(x, dim=2)
+        if softmax:
+            x = F.softmax(x, dim=2)
         return x
 
     def reset_parameters(self):

@@ -54,7 +54,7 @@ def getOutputs(models, dataloader, metaModel=None):
         all_labels.append(labels)
         with torch.no_grad():
             for idx, model in enumerate(models):
-                outputs[idx].append(torch.exp(model.forward(inputs, log_softmax=True, eval=True)[0]))
+                outputs[idx].append(torch.exp(model.forward(inputs, eval=True)[0]))
     outputs = [torch.cat(outputs[idx], dim=0) for idx in range(len(models))]
     all_labels = torch.cat(all_labels, dim=0)
     return outputs, all_labels
@@ -75,8 +75,7 @@ def removalExperiment(outputs, labels, metaModel=None):
                 # mask outputs of subset; fill with 0.1 per class
                 masked_outputs = [outputs[idx] if idx in subset else torch.full_like(outputs[idx], 0.1) for idx in range(len(outputs))]
                 masked_outputs = torch.stack(masked_outputs)
-                ensemble_output = metaModel.forward(masked_outputs, log_softmax=True)
-                # get ensemble accuracy
+                ensemble_output = metaModel.forward(masked_outputs)
                 ensemble_acc = (ensemble_output.argmax(dim=1) == labels).float().mean().item()
             else:
                 ensemble_output = torch.stack(outputs)[subset].mean(dim=0)
@@ -107,6 +106,8 @@ for i, run_id in enumerate(SNCL_runIds):
     metaLayers = int(len(weights.keys())/2)
     metaModel = MetaLearner(num_layers=metaLayers, num_classes=10, num_modules=len(SNCLEnsembleSubmodels)).cuda().eval()
     metaModel.load_state_dict(weights)
+
+    # perform experiment + plot
     outputs, all_labels = getOutputs(SNCLEnsembleSubmodels, testloader, metaModel)
     stackAccPerSize = removalExperiment(outputs, all_labels, metaModel)
     plt.plot(range(1,len(stackAccPerSize)+1), stackAccPerSize, label='SNCL (M='+str(len(stackAccPerSize))+', λ=0.5) (ours)', color='C'+str(i+2))
