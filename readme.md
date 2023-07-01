@@ -30,6 +30,7 @@ The following packages are required to run all of the provided code:
 - matplotlib
 - MAPIE (https://github.com/scikit-learn-contrib/MAPIE/tree/master)
 - sklearn
+- neptune
 
 ## Running the experiments
 
