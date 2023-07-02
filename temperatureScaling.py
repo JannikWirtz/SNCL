@@ -25,9 +25,9 @@ class ModelWithTemperature(nn.Module):
                 logits = None
                 if self.metaModel is not None:
                     logits = self.model(input)
-                    logits = self.metaModel(logits, softmax=False)
+                    logits = self.metaModel(logits, softmax=False, eval=True)
                 else:
-                    logits = self.model(input, softmax=False)
+                    logits = self.model(input, softmax=False, eval=True)
                     logits = torch.mean(logits, dim=0)
                 logits_list.append(logits)
             logits = torch.cat(logits_list).cuda()
