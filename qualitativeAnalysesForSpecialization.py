@@ -55,7 +55,7 @@ def getOutputs(models, dataloader, metaModel=None):
         all_labels.append(labels)
         with torch.no_grad():
             for idx, model in enumerate(models):
-                outputs[idx].append(torch.exp(model.forward(inputs, eval=True)[0]))
+                outputs[idx].append(model.forward(inputs, eval=True)[0])
     outputs = [torch.cat(outputs[idx], dim=0) for idx in range(len(models))]
     all_labels = torch.cat(all_labels, dim=0)
     submodelPerClassAcc = [getPerClassAcc(outputs[i], all_labels) for i in range(len(models))]
@@ -164,7 +164,7 @@ def visualizeWeightMatrices(metaModel):
 if __name__ == "__main__":
             
     # load cifar-10
-    trainloader, testloader = load_cifar10()
+    trainloader, testloader = load_cifar10(10000)
     replacementValue = 0.1 # replacing model predictions with equal probability for all classes
 
     ### M=5, individual model exclusion
