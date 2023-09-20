@@ -2,6 +2,19 @@
 
 This repository contains the code used for the experiments in the Master thesis "From Generalists to Specialists: Empowering Weak Learners in Deep Ensembles"
 
+## Thesis Abstract
+Ensemble learning is a machine learning technique that leverages the predictions of multiple diverse predictors to enhance overall predictive performance. In recent years the approach has regained significant research attention due to deep ensembles empirically providing state-of-the-art generalisation accuracy and uncertainty estimates.
+
+This thesis provides a critical empirical analysis of state-of-the-art approaches to deep ensembling, highlighting a critical deficiency: their inability to train specialised models. A limitation that leads to inefficient utilisation of learning capacities due to redundant learnings, resulting in compromised accuracy and diminishing returns for larger ensemble sizes.
+
+In response, we propose Stacked Negative Correlation Learning (SNCL), a novel ensembling method that effectively encourages ensemble members to specialise in distinguishing between class subsets. SNCL incorporates negative correlation learning and stacked generalisation through a novel concurrent training scheme for stacked ensembles, effectively overcoming some of their limitations and leveraging the advantages of both methods.
+
+Through extensive experimentation and analysis, we demonstrate that SNCL effectively reduces redundancies within deep ensembles, yielding improved generalisation accuracy with comparable model complexities. Our proposal further enhances the state-of-the-art performance of deep ensembles for uncertainty quantification by reducing in-domain uncertainty, thereby improving out-of-distribution detection capabilities, which are desirable in safety-critical domains.
+
+Our results demonstrate that SNCL can significantly enhance the performance of deep ensembles in high-dimensional multi-class classification settings, presenting a powerful alternative to state-of-the-art techniques by enabling more efficient deep ensembling. We highlight its potential benefits for practical applications and avenues for future research.
+
+
+
 ## Repository structure
 Note: All experimental results are saved in the folder `/plots/` as .png and .svg with descriptive naming.
 
